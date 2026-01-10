@@ -76,9 +76,10 @@ Functional verification is performed using **ModelSim** with self-checking testb
 **Result:** Functional correctness verified (PASS for all test cases).
 
 ---
-## Testbenches
+## 🧪 Testbenches
 Multiple testbenches are included to verify individual modules as well as the integrated design,
 including comparison between naive and Karatsuba-based GF(2¹²⁸) multipliers.
+
 ---
 
 ## 📌 Current Status
