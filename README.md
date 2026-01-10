@@ -1,103 +1,114 @@
-# SET_PROJECT
+# Optimized GF(2¹²⁸) Multiplier for AES-GCM (GHASH)
 
-# Optimized GF(2^128) Multiplier for AES-GCM  
-### Naive + Karatsuba Implementations in Verilog (FPGA-Ready)
+## 🎯 Project Goal
+The goal of this project is to **design and verify an optimized GF(2¹²⁸) multiplier** suitable for use in the **GHASH authentication block of AES-GCM**, focusing on reduced computational complexity and hardware efficiency.
 
-This repository contains a hardware-oriented implementation of **Galois Field (GF(2^128)) multipliers**, targeting the GHASH component of the **AES-GCM** cryptographic algorithm.  
-The project includes both a **baseline naive multiplier** and an **optimized Karatsuba-based multiplier**, along with self-checking testbenches.
-
-## 🚀 Project Goals
-- Implement a correct **GF(2^128)** multiplication engine for AES-GCM.  
-- Compare:
-  - **Naive polynomial multiplication**
-  - **Karatsuba multiplication**
-- Optimize for:
-  - **Low latency**
-  - **Reduced switching activity / dynamic power**
-  - **Higher throughput (optional pipelining)**
-- Validate all modules using **self-checking testbenches** in ModelSim/Questa.
+Only the **GF(2¹²⁸) multiplication datapath** is implemented and optimized in this work.
 
 ---
 
-## 📌 Repository Structure
-├── gf64_mul.v # 64×64 polynomial multiplier (GF(2))
-├── tb_gf64_mul.v # Self-checking testbench for gf64_mul
-├── gf128_naive.v # (Coming soon) naive 128×128 GF multiplier
-├── gf128_karatsuba.v # (Coming soon) optimized Karatsuba GF multiplier
-├── tb_gf128_compare.v # (Coming soon) naive vs Karatsuba verification
-└── README.md
+## 📘 Overview
+This repository contains the design, implementation, and verification of an **optimized GF(2¹²⁸) multiplier** intended for use inside the **GHASH authentication block of AES-GCM**.
 
+The scope of this work is **limited to the GF(2¹²⁸) multiplication datapath**.  
+AES encryption (counter mode), GHASH control logic, and full AES-GCM integration are **not implemented** and are shown only for architectural context.
 
 ---
 
-## 🧠 Background  
-AES-GCM requires multiplication in the finite field **GF(2^128)** using the irreducible polynomial:
+## 🧩 System Context: AES-GCM
+AES-GCM consists of two major functional blocks:
+- **Counter Mode (CTR)** – Encryption
+- **GHASH** – Authentication
 
-\[
-P(x) = x^{128} + x^7 + x^2 + x + 1
-\]
+This project implements **only the GF(2¹²⁸) multiplier used inside the GHASH block**.
 
-The multiplication itself has two steps:
-
-1. **Polynomial multiplication** over GF(2)  
-   - bitwise AND → multiplication  
-   - XOR → addition (mod 2)  
-
-2. **Modulo reduction** using AES-GCM polynomial  
-
-This project implements Step 1 for both naive and Karatsuba methods and will integrate Step 2 in the optimized design.
+<p align="center">
+  <img src="docs/aes_gcm_tree.png" width="450">
+</p>
 
 ---
 
-## 🧩 Implemented Modules
+## 🔧 GF(2¹²⁸) Multiplier – High-Level Datapath
+The GF(2¹²⁸) multiplier accepts two 128-bit inputs and produces a 128-bit reduced output as required by AES-GCM.  
+The design is optimized using a **Karatsuba-based multiplication approach** followed by **AES-GCM polynomial reduction**.
 
-### ✔ `gf64_mul.v` — 64×64 Polynomial Multiplier  
-- Pure combinational logic  
-- Implements shift-and-XOR polynomial multiply  
-- Output is full 128-bit product (no reduction)  
-- Acts as the building block for Karatsuba 128-bit multiplier  
-
-### ✔ `tb_gf64_mul.v` — Self-Checking Testbench  
-- Runs fixed tests  
-- Runs 2000 randomized vectors  
-- Compares DUT against internal reference model  
-- Reports mismatches with full values  
+<p align="center">
+  <img src="docs/gf128_datapath.png" width="700">
+</p>
 
 ---
 
-## 🛠️ How to Run (ModelSim/Questa)
+## 🌳 Karatsuba-Based Internal Architecture
+The internal structure of the multiplier uses Karatsuba decomposition to reduce multiplication complexity.  
+The 128-bit operands are split into 64-bit halves and processed using three parallel GF(64×64) polynomial multipliers.
 
-### Step 1: Create library
-vlib work
-vmap work work
+<p align="center">
+  <img src="docs/gf128_karatsuba_tree.png" width="700">
+</p>
 
-### Step 2: Compile design + testbench
-vlog gf64_mul.v
-vlog tb_gf64_mul.v
-
-### Step 3: Simulate
-vsim tb_gf64_mul
-run -all
-
-Expected output:
-All tests passed (2000 random vectors).
-
----
-
-## 📊 Next Steps  
-Planned additions to this repository:
-
-- [ ] `gf128_naive.v` — slow but correct reference multiplier  
-- [ ] `gf128_karatsuba.v` — optimized multiplier using 3×gf64 blocks  
-- [ ] Modulo-P(x) reduction logic for AES-GCM  
-- [ ] Optional pipelining stages  
-- [ ] FPGA synthesis (Cyclone IV / Zynq optional)  
-- [ ] Power and latency comparison between methods  
+**Key architectural points:**
+- Operand split: A → (A₁, A₀), B → (B₁, B₀)
+- Three GF(64×64) polynomial multipliers:
+  - P₀ = A₀ × B₀
+  - P₁ = (A₀ ⊕ A₁)(B₀ ⊕ B₁)
+  - P₂ = A₁ × B₁
+- Karatsuba recombination using XOR and shift operations
+- Integrated reduction modulo **x¹²⁸ + x⁷ + x² + x + 1** (AES-GCM polynomial)
 
 ---
 
-## 👤 Author  
+## ⚙️ Implementation Details
+- **HDL:** Verilog RTL
+- **Arithmetic Domain:** GF(2)
+- **Operations Used:** XOR and AND only
+- **Architecture:** Non-pipelined (baseline)
+- **Reduction:** Integrated AES-GCM polynomial reduction
+
+---
+
+## 🧪 Verification Methodology
+Functional verification is performed using **ModelSim** with self-checking testbenches.
+
+- A naive GF(2¹²⁸) multiplier is implemented as a **golden reference**
+- Outputs of the Karatsuba-based multiplier (with reduction) are compared against the reference
+- Random and corner-case test vectors are applied
+
+**Result:** Functional correctness verified (PASS for all test cases).
+
+---
+
+## 📌 Current Status
+- GF(64) polynomial multiplier implemented and verified
+- Naive GF(2¹²⁸) multiplier implemented (reference)
+- Karatsuba-based GF(2¹²⁸) multiplier implemented
+- AES-GCM reduction logic implemented and integrated
+- Complete functional verification completed
+
+---
+
+## 🔜 Planned Next Steps
+- Introduce pipelining to study frequency and latency improvements
+- Perform FPGA synthesis targeting **Intel (Altera) Cyclone IV**
+- Compare naive and optimized designs in terms of:
+  - Area
+  - Timing
+  - Latency
+
+---
+
+## 🛠️ Tools Used
+- Verilog RTL
+- ModelSim (Simulation and Verification)
+- Quartus Prime (FPGA Synthesis – planned)
+
+---
+
+## ℹ️ Notes
+This repository focuses on a **core cryptographic arithmetic block** for academic study and hardware optimization analysis.  
+It does not aim to provide a complete AES-GCM implementation.
+
+---
+
+## 👤 Author
 **Syed Faheem**  
-M.Tech VLSI Design  
-VIT Vellore
-
+M.Tech – VLSI Design  
