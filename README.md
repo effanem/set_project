@@ -49,7 +49,7 @@ This project demonstrates that **microarchitectural pipelining**, applied within
 
 ## Architecture Overview
 
-![GF(2¹²⁸) Karatsuba Block Diagram](docs/gf128.png)
+![AES-GCM System Overview](docs/aes_gcm_tree.png)
 
 ```
 GF(2¹²⁸) Multiplier
@@ -102,9 +102,11 @@ set_project/
 │   └── tb_gf128_naive_vs_kara_reduced.v   # Testbench: full comparison across architectures
 │
 └── docs/                                  # Documentation, diagrams, synthesis reports
-    ├── gf128.png                          # GF(2¹²⁸) block diagram
-    ├── gf64.png                           # GF(2⁶⁴) multiplier diagram
-    ├── internal64.png                     # Pipelined internal structure
+    ├── Set_Project.pdf                    # Full project presentation slides
+    ├── aes_gcm_tree.png                   # AES-GCM system overview diagram
+    ├── gf128_karatsuba_tree.png           # Karatsuba-based GF(2¹²⁸) architecture block diagram
+    ├── pipeline.png                       # Critical path analysis diagram
+    ├── pipeline_gf64.png                  # Pipelined GF(2⁶⁴) internal block diagram
     ├── naive_reduced_area.rpt.pdf
     ├── naive_reduced_timing.rpt.pdf
     ├── naive_reduced_power.rpt.pdf
@@ -149,13 +151,15 @@ P1 = (A_lo ⊕ A_hi) × (B_lo ⊕ B_hi)
 Product = P2·x¹²⁸ ⊕ (P0 ⊕ P1 ⊕ P2)·x⁶⁴ ⊕ P0
 ```
 
-![GF(2⁶⁴) Multiplier Block](docs/gf64.png)
+![Karatsuba-Based GF(2¹²⁸) Architecture](docs/gf128_karatsuba_tree.png)
 
 - Reduces sub-multiplication count from 4 to 3
 - 11 logic levels, fully combinational (1-cycle latency)
 - 19% area reduction over naive
 
 **Key observation:** Algorithmic reduction alone gives only a marginal improvement in delay; frequency improvement is limited without pipelining.
+
+![Critical Path Analysis](docs/pipeline.png)
 
 ---
 
@@ -171,7 +175,7 @@ Stage 2 (Cycle 2):  XOR compression tree inside GF(2⁶⁴) blocks
 Stage 3 (Cycle 3):  Karatsuba recombination + modular reduction
 ```
 
-![Pipelined GF(2⁶⁴) Internal Structure](docs/internal64.png)
+![Pipelined GF(2⁶⁴) Internal Structure](docs/pipeline_gf64.png)
 
 - Total latency: 3 cycles
 - 9 logic levels on critical path
