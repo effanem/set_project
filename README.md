@@ -30,6 +30,7 @@ AES-GCM (Galois/Counter Mode) is the dominant authenticated encryption standard 
 - [Simulation](#simulation)
 - [Synthesis Setup](#synthesis-setup)
 - [References](#references)
+- [Acknowledgement](#acknowledgement)
 
 ---
 
@@ -283,5 +284,11 @@ All three architectures were synthesized under identical conditions for a fair c
 6. Synopsys Design Compiler User Guide.
 
 ---
+## Acknowledgements
 
+I would like to thank **Dr. Abhishek Narayan Tripathi**, Associate Professor, **Department of Micro and Nano Electronics, VIT Vellore**, for his guidance and encouragement throughout this project.
+
+I am also grateful to the **Department of Micro and Nano Electronics, VIT Vellore**, for providing the resources and learning environment that made this work possible.
+
+---
 *M.Tech VLSI Design — VIT Vellore | Under the guidance of Dr. Abhishek Narayan Tripathi*
