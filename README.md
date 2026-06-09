@@ -2,7 +2,7 @@
 
 **Karatsuba Decomposition and Microarchitectural Pipelining**
 
-> M.Tech VLSI Design Project — VIT Vellore  
+> M.Tech VLSI Design — VIT Vellore  
 > **Syed Faheem**   
 > Under the guidance of **Dr. Abhishek Narayan Tripathi**, Associate Professor, Dept. of Micro and Nano Electronics
 
